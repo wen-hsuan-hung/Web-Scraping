@@ -1,0 +1,313 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### group member: Hongyuan Zhang"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Question 1"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 54,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#In this question, you will be required to obtain the unemployment data for the following states: Georgia, California, \n",
+    "# and Texas (similar to what we did in class) and export them to individual files using python (This means there should \n",
+    "# be a separate file for each state). For each file, make the following changes:\n",
+    "# ● We only want four columns from the original data: series id, year, month, and value. Do not include any other columns \n",
+    "# from the original source data.\n",
+    "# ● Add a column called month_year which holds a string that has the month year combination. For example, if a row \n",
+    "# has the month at 06 and the year at 2018, this column should have the following string: “06_2018”\n",
+    "# ● We only want to keep the data from 2015 till 2020.\n",
+    "# Hint: You can make use of a python method that is applied to a string called .split(“,”). Here is an example of \n",
+    "# what this will do. Try to think about solving the problem above and thinking about the logical way you can use this\n",
+    "# method to assist you."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import urllib.request"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 52,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#create a list that contains the state we want to scrape\n",
+    "#Georgia, California, and Texas\n",
+    "state_list = ['17.Georgia', '11.California', '51.Texas']\n",
+    "state_name = ['Georgia', 'California', 'Texas']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 53,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['https://download.bls.gov/pub/time.series/la/la.data.17.Georgia', 'https://download.bls.gov/pub/time.series/la/la.data.11.California', 'https://download.bls.gov/pub/time.series/la/la.data.51.Texas']\n"
+     ]
+    }
+   ],
+   "source": [
+    "#create url list\n",
+    "urls = []\n",
+    "for state in state_list:\n",
+    "    urls.append('https://download.bls.gov/pub/time.series/la/la.data.' + state)\n",
+    "print(urls)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 54,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Georgia\n",
+      "California\n",
+      "Texas\n"
+     ]
+    }
+   ],
+   "source": [
+    "#get state data from the website\n",
+    "for i in range(0 , len(urls) ):\n",
+    "    print(state_name[i])\n",
+    "    html = urllib.request.urlopen(urls[i]).read().decode('utf-8')\n",
+    "    Output_File = open('Files_Directory/BLS/' + state_name[i] +  '.txt','w')\n",
+    "    Output_File.write(html)\n",
+    "    Output_File.close()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 55,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [],
+   "source": [
+    "#read the files\n",
+    "ga = open(\"Files_Directory/BLS/Georgia.txt\" ,\"r\")\n",
+    "ga_file = ga.read().splitlines(0)\n",
+    "ga.close()\n",
+    "ca = open(\"Files_Directory/BLS/California.txt\" ,\"r\")\n",
+    "ca_file = ca.read().splitlines(0)\n",
+    "ca.close()\n",
+    "tx = open(\"Files_Directory/BLS/Texas.txt\" ,\"r\")\n",
+    "tx_file = tx.read().splitlines(0)\n",
+    "tx.close()\n",
+    "\n",
+    "raw_text_files = [ga_file, ca_file, tx_file]\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 56,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [],
+   "source": [
+    "#Georgia\n",
+    "new_lines = []\n",
+    "for i in range(0, len(ga_file)):\n",
+    "    if ga_file[i]:\n",
+    "        i_split = ga_file[i].split('\\t')\n",
+    "        del i_split[-1]\n",
+    "        if i == 0:\n",
+    "            i_split.append('month_year')\n",
+    "            i_split[2] = 'month'\n",
+    "            new_lines.append('\\t'.join(i_split))\n",
+    "            continue\n",
+    "        if int(i_split[1]) < 2015 or int(i_split[1]) > 2020:\n",
+    "            continue \n",
+    "        else:\n",
+    "            i_split.append(i_split[2][1:] + \"_\" + i_split[1])\n",
+    "\n",
+    "        new_lines.append('\\t'.join(i_split))\n",
+    "\n",
+    "\n",
+    "\n",
+    "with open('Files_Directory/BLS/Georgia_modified.txt', 'w') as f: \n",
+    "    for s in new_lines: \n",
+    "        f.write(s+'\\n')\n",
+    "f.close()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 57,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#California\n",
+    "new_lines = []\n",
+    "for i in range(0, len(ca_file)):\n",
+    "    if ca_file[i]:\n",
+    "        i_split = ca_file[i].split('\\t')\n",
+    "        del i_split[-1]\n",
+    "        if i == 0:\n",
+    "            i_split.append('month_year')\n",
+    "            i_split[2] = 'month'\n",
+    "            new_lines.append('\\t'.join(i_split))\n",
+    "            continue\n",
+    "        if int(i_split[1]) < 2015 or int(i_split[1]) > 2020:\n",
+    "            continue \n",
+    "        else:\n",
+    "            i_split.append(i_split[2][1:] + \"_\" + i_split[1])\n",
+    "\n",
+    "        new_lines.append('\\t'.join(i_split))\n",
+    "\n",
+    "\n",
+    "\n",
+    "with open('Files_Directory/BLS/California_modified.txt', 'w') as f: \n",
+    "    for s in new_lines: \n",
+    "        f.write(s+'\\n')\n",
+    "f.close()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 58,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Texas\n",
+    "new_lines = []\n",
+    "for i in range(0, len(tx_file)):\n",
+    "    if tx_file[i]:\n",
+    "        i_split = tx_file[i].split('\\t')\n",
+    "        del i_split[-1]\n",
+    "        if i == 0:\n",
+    "            i_split.append('month_year')\n",
+    "            i_split[2] = 'month'\n",
+    "            new_lines.append('\\t'.join(i_split))\n",
+    "            continue\n",
+    "        if int(i_split[1]) < 2015 or int(i_split[1]) > 2020:\n",
+    "            continue \n",
+    "        else:\n",
+    "            i_split.append(i_split[2][1:] + \"_\" + i_split[1])\n",
+    "\n",
+    "        new_lines.append('\\t'.join(i_split))\n",
+    "\n",
+    "\n",
+    "\n",
+    "with open('Files_Directory/BLS/Texas_modified.txt', 'w') as f: \n",
+    "    for s in new_lines: \n",
+    "        f.write(s+'\\n')\n",
+    "f.close()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Question 2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 61,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#create a new txt file\n",
+    "state_mapping = {0:'Georgia', 1:'California', 2:'Texas'}\n",
+    "new_lines_total = []\n",
+    "state_num = 0\n",
+    "for state in raw_text_files:\n",
+    "    for i in range(0, len(state)):\n",
+    "        if state[i]:\n",
+    "            i_split = state[i].split('\\t')\n",
+    "            if i == 0:\n",
+    "                i_split.append('State')\n",
+    "                new_lines_total.append('\\t'.join(i_split))\n",
+    "                continue\n",
+    "            if int(i_split[1]) < 2015 or int(i_split[1]) > 2020 or i_split[2][1:] != '06':\n",
+    "                continue \n",
+    "            else:\n",
+    "                i_split.append(state_mapping[state_num])\n",
+    "\n",
+    "            new_lines_total.append('\\t'.join(i_split))\n",
+    "    state_num += 1\n",
+    "\n",
+    "\n",
+    "with open('Files_Directory/BLS/all_doc.txt', 'w') as f: \n",
+    "    for s in new_lines_total: \n",
+    "        f.write(s+'\\n')\n",
+    "f.close()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
